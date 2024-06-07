@@ -3,6 +3,6 @@
 import math
 
 
-def floor(n: float) -> float:
-    """takes float argument and returns floor of the float"""
+def floor(n: float) -> int:
+    """takes float argument and returns int of floor of the float"""
     return math.floor(n)
