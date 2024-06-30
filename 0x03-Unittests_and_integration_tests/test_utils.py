@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-""" Parameterize a unit test """
+""" Test Utils """
 
 import unittest.mock
 from parameterized import parameterized
@@ -57,7 +57,7 @@ class TestMemoize(unittest.TestCase):
                 """ testing a_method for memoize """
                 return 42
 
-            @memoize  # makes a_property  behaves like attribute
+            @memoize  # makes a_property behaves like attribute
             def a_property(self):
                 """create a property"""
                 return self.a_method()
