@@ -82,21 +82,19 @@ class TestGithubOrgClient(unittest.TestCase):
                     'pushed_at':	"2022-12-13T00:54:50Z",
                     'git_url':	"git://github.com/abc/advent-of-code-2022.git",
                     'ssh_url':	"git@github.com:abc/advent-of-code-2022.git",
-                    'clone_url':	"https://github.com/abc/advent-of-code-2022.git",
                     'svn_url':	"https://github.com/abc/advent-of-code-2022",
                 },
                 {
                     'id': 440222033,
                     'name': "advent-of-code-2021",
-                    'full_name':	"abc/advent-of-code-2021",
-                    'html_url':"https://github.com/abc/advent-of-code-2021",
+                    'full_name': "abc/advent-of-code-2021",
+                    'html_url': "https://github.com/abc/advent-of-code-2021",
                     'url': "https://api.github.com/r…/abc/advent-of-code-2021",
                     'created_at':	"2021-12-20T15:41:38Z",
                     'updated_at':	"2023-10-09T13:58:58Z",
                     'pushed_at':	"2021-12-22T00:28:44Z",
                     'git_url':	"git://github.com/abc/advent-of-code-2021.git",
                     'ssh_url':	"git@github.com:abc/advent-of-code-2021.git",
-                    'clone_url':	"https://github.com/abc/advent-of-code-2021.git",
                     'svn_url':	"https://github.com/abc/advent-of-code-2021"
                 }
             ]
@@ -118,5 +116,16 @@ class TestGithubOrgClient(unittest.TestCase):
             mock_org.assert_called_once()
 
             # Assert their value is same
-            self.assertEqual(result, ['advent-of-code-2022', "advent-of-code-2021"])
+            self.assertEqual(result, ['advent-of-code-2022',
+                                      "advent-of-code-2021"])
         mock_get_json.assert_called_once()
+
+    @parameterized.expand([
+        ({"license": {"key": "my_license"}}, "my_license", True),
+        ({"license": {"key": "other_license"}}, "my_license", False)
+    ])
+    def test_has_license(self, repo, license_key, expected_value):
+        """ Test has_license method """
+        self.assertEqual(
+            GithubOrgClient.has_license(repo, license_key),
+            expected_value)
