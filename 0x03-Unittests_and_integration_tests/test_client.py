@@ -30,3 +30,37 @@ class TestGithubOrgClient(unittest.TestCase):
             f"https://api.github.com/orgs/{org_name}")
 
         self.assertEqual(result, {"mocked": "response"})
+
+    # @unittest.mock.patch.object(GithubOrgClient, 'org',
+    #                         new_callable=unittest.mock.PropertyMock)
+    # def test_public_repos_url(self, mock_obj):
+    #     """ Test public_repos_url method """
+
+    #     mock_obj.return_value = {"repos_url": "payload"}
+
+    #     client = GithubOrgClient("sample")
+    #     result = client._public_repos_url
+
+    #     mock_obj.assert_called_once_with()
+
+    #     self.assertEqual(result, "payload")
+
+    @unittest.mock.patch.object(
+        GithubOrgClient, 'org', new_callable=unittest.mock.PropertyMock)
+    def test_public_repos_url(self, mock_obj):
+        """ Test public_repos_url method """
+
+        # define a patch using either patch or patch.object
+        with unittest.mock.patch(
+            'client.GithubOrgClient.org',
+             new_callable=unittest.mock.PropertyMock) as mock_obj:
+
+            # Give the mock_obj a return value
+            mock_obj.return_value = {"repos_url": "payload"}
+
+            client = GithubOrgClient("sample")
+            result = client._public_repos_url
+
+            mock_obj.assert_called_once_with()
+
+            self.assertEqual(result, "payload")
