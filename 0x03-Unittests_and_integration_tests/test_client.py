@@ -68,45 +68,40 @@ class TestGithubOrgClient(unittest.TestCase):
         """ Test public_repos method """
 
         # Give mock_get_json a return values:
-        test_payload = {
-            'repos_url': "https://api.github.com/users/google/repos",
-            'repos': [
+        payload = {
+            "repo_url": "https://api.github.com/users/abc/repos",
+            "repo": [
                 {
-                    "id": 7697149,
-                    "name": "episodes.dart",
-                    "private": False,
-                    "owner": {
-                        "login": "google",
-                        "id": 1342004,
-                        },
-                    "fork": False,
-                    "url": "https://api.github.com/repos/google/episodes.dart",
-                    "created_at": "2013-01-19T00:31:37Z",
-                    "updated_at": "2019-09-23T11:53:58Z",
-                    "has_issues": True,
-                    "forks": 22,
-                    "default_branch": "master",
+                    'id':	572997712,
+                    'name':	"advent-of-code-2022",
+                    'full_name':	"abc/advent-of-code-2022",
+                    'html_url':	"https://github.com/abc/advent-of-code-2022",
+                    'url':	"https://api.github.com/r…/abc/advent-of-code-2022",
+                    'created_at':	"2022-12-01T13:36:46Z",
+                    'updated_at':	"2023-10-09T14:13:16Z",
+                    'pushed_at':	"2022-12-13T00:54:50Z",
+                    'git_url':	"git://github.com/abc/advent-of-code-2022.git",
+                    'ssh_url':	"git@github.com:abc/advent-of-code-2022.git",
+                    'clone_url':	"https://github.com/abc/advent-of-code-2022.git",
+                    'svn_url':	"https://github.com/abc/advent-of-code-2022",
                 },
                 {
-                    "id": 8566972,
-                    "name": "kratu",
-                    "private": False,
-                    "owner": {
-                        "login": "google",
-                        "id": 1342004,
-                        },
-                    "fork": False,
-                    "url": "https://api.github.com/repos/google/kratu",
-                    "created_at": "2013-03-04T22:52:33Z",
-                    "updated_at": "2019-11-15T22:22:16Z",
-                    "has_issues": True,
-                    "forks": 32,
-                    "default_branch": "master",
-                },
-                ]
-            }
-
-        mock_get_json.return_value = test_payload["repos"]
+                    'id': 440222033,
+                    'name': "advent-of-code-2021",
+                    'full_name':	"abc/advent-of-code-2021",
+                    'html_url':"https://github.com/abc/advent-of-code-2021",
+                    'url': "https://api.github.com/r…/abc/advent-of-code-2021",
+                    'created_at':	"2021-12-20T15:41:38Z",
+                    'updated_at':	"2023-10-09T13:58:58Z",
+                    'pushed_at':	"2021-12-22T00:28:44Z",
+                    'git_url':	"git://github.com/abc/advent-of-code-2021.git",
+                    'ssh_url':	"git@github.com:abc/advent-of-code-2021.git",
+                    'clone_url':	"https://github.com/abc/advent-of-code-2021.git",
+                    'svn_url':	"https://github.com/abc/advent-of-code-2021"
+                }
+            ]
+        }
+        mock_get_json.return_value = payload["repo"]
 
         # mock GithubOrgClient._public_repos_url
         with unittest.mock.patch.object(
@@ -114,13 +109,14 @@ class TestGithubOrgClient(unittest.TestCase):
             new_callable=unittest.mock.PropertyMock
         ) as mock_org:
             # Give mock_org a return value
-            mock_org.return_value = "https://rashisky.tech"
+            mock_org.return_value = payload["repo_url"]
 
-            client = GithubOrgClient("RashiskyAdejare")
+            client = GithubOrgClient("google")
             result = client.public_repos()
 
             # Assert mock_org was called once
             mock_org.assert_called_once()
 
             # Assert their value is same
-            self.assertEqual(result, ['episodes.dart', 'kratu'])
+            self.assertEqual(result, ['advent-of-code-2022', "advent-of-code-2021"])
+        mock_get_json.assert_called_once()
