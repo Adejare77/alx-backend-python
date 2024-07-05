@@ -51,6 +51,7 @@ class TestGithubOrgClient(unittest.TestCase):
     def test_public_repos_url(self):
         """ Test public_repos_url method """
 
+        # define a patch using either patch or patch.object
         with unittest.mock.patch(
             'client.GithubOrgClient.org',
              new_callable=unittest.mock.PropertyMock) as mock_obj:
