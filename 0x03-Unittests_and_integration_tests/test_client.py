@@ -6,7 +6,7 @@ from client import GithubOrgClient
 import unittest.mock
 from parameterized import parameterized, parameterized_class
 from fixtures import TEST_PAYLOAD
-# import requests
+from unittest.mock import patch
 from requests.exceptions import HTTPError
 
 
@@ -66,7 +66,7 @@ class TestGithubOrgClient(unittest.TestCase):
 
             self.assertEqual(result, "payload")
 
-    @unittest.mock.patch('client.get_json')
+    @patch('client.get_json')
     def test_public_repos(self, mock_get_json):
         """ Test public_repos method """
 
