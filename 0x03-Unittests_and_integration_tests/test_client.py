@@ -4,7 +4,10 @@
 import unittest
 from client import GithubOrgClient
 import unittest.mock
-from parameterized import parameterized
+from parameterized import parameterized, parameterized_class
+from fixtures import TEST_PAYLOAD
+# import requests
+from requests.exceptions import HTTPError
 
 
 class TestGithubOrgClient(unittest.TestCase):
@@ -118,6 +121,7 @@ class TestGithubOrgClient(unittest.TestCase):
             # Assert their value is same
             self.assertEqual(result, ['advent-of-code-2022',
                                       "advent-of-code-2021"])
+
         mock_get_json.assert_called_once()
 
     @parameterized.expand([
@@ -129,3 +133,97 @@ class TestGithubOrgClient(unittest.TestCase):
         self.assertEqual(
             GithubOrgClient.has_license(repo, license_key),
             expected_value)
+
+    @parameterized_class(
+        ("org_payload", "repos_payload", "expected_repos",
+            "apache2_repos"),
+        [
+            (TEST_PAYLOAD[0][0], TEST_PAYLOAD[0][1],
+             TEST_PAYLOAD[0][2], TEST_PAYLOAD[0][3])
+            ]
+    )
+    class TestIntegrationGithubOrgClient(unittest.TestCase):
+        """ Integration test: fixtures """
+        @classmethod
+        def setUpClass(cls) -> None:
+            """ Set up class method to start patching request.get """
+            cls.get_patcher = unittest.mock.patch(
+                'requests.get', side_effect=cls.mocked_requests_get)
+            cls.mock_get = cls.get_patcher.start()
+
+        @classmethod
+        def tearDownClass(cls) -> None:
+            cls.get_patcher.stop()
+
+        @classmethod
+        def mocked_requests_get(cls, url):
+            """ Mock function for requests.get"""
+            class MockResponse:
+                def __init__(self, json_data, status_code):
+                    self.json_data = json_data
+                    self.status_code = status_code
+
+                def json(self):
+                    return self.json_data
+
+            if 'repos' in url:
+                return MockResponse(cls.repos_payload, 200)
+            elif 'orgs' in url:
+                return MockResponse(cls.org_payload, 200)
+
+            return HTTPError(f'404 client not found for url: {url}')
+
+        def test_public_repos(self):
+            """ Test the public_repos method without license """
+            client = GithubOrgClient("google")
+            result = client.public_repos()
+            self.assertEqual(result, self.expected_repos)
+
+        def test_public_repos_with_license(self):
+            """ Test the public_repos method with license """
+            client = GithubOrgClient("google")
+            result = client.public_repos(license="apache-2.0")
+            self.assertEqual(result, self.apache2_repos)
+
+
+"""
+@parameterized_class([
+    {
+        'org_payload': TEST_PAYLOAD[0][0],
+        'repos_payload': TEST_PAYLOAD[0][1],
+        'expected_repos': TEST_PAYLOAD[0][2],
+        'apache2_repos': TEST_PAYLOAD[0][3],
+    },
+])
+class TestIntegrationGithubOrgClient(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        route_payload = {
+            'https://api.github.com/orgs/google': cls.org_payload,
+            'https://api.github.com/orgs/google/repos': cls.repos_payload,
+        }
+
+        def get_payload(url):
+            if url in route_payload:
+                return Mock(**{'json.return_value': route_payload[url]})
+            return HTTPError
+
+        cls.get_patcher = patch("requests.get", side_effect=get_payload)
+        cls.get_patcher.start()
+
+    def test_public_repos(self) -> None:
+        self.assertEqual(
+            GithubOrgClient("google").public_repos(),
+            self.expected_repos,
+        )
+
+    def test_public_repos_with_license(self) -> None:
+        self.assertEqual(
+            GithubOrgClient("google").public_repos(license="apache-2.0"),
+            self.apache2_repos,
+        )
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls.get_patcher.stop()
+"""
